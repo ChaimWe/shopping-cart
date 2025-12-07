@@ -7,7 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import api from "./lib/api";
 import { UserTracker } from "./utils/UserTracker";
-import { CartStore } from "./stores/CartStore";
+import { CartStore } from "./lib/CartStore";
 import { useEffect } from "react";
 import useProducts from "./hooks/useProduct";
 import Chat from "./components/Chat";

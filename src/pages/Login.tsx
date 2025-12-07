@@ -2,7 +2,7 @@ import { Card, Typography, Form, Input, Button, Alert } from "antd";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../lib/api";
-import { CartStore } from "../stores/CartStore";
+import { CartStore } from "../lib/CartStore";
 import { UserTracker } from "../utils/UserTracker";
 import useProducts from "../hooks/useProduct";
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"; 
-import { AskAi } from "./AI"; 
+import { AskAi } from "../utils/AI"; 
 import { Card, Button, Input, List } from "antd"; 
 import { RobotFilled } from "@ant-design/icons"; 
 
@@ -16,7 +16,7 @@ export default function Chat() {
 
   
   const [dragging, setDragging] = useState(false); 
-  const [offset, setOffset] = useState({ x: 0, y: 0 }); // NEW: cursor offset
+  const [offset, setOffset] = useState({ x: 0, y: 0 }); 
 
   const aiChat = async () => {
     if (!input) return; 
@@ -26,26 +26,26 @@ export default function Chat() {
     setMessages((prev) => [...prev, { role: "assistant", text: reply }]); 
   };
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => { // NEW
-    setDragging(true); // NEW
-    setOffset({ x: e.clientX - position.x, y: e.clientY - position.y }); // NEW
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => { 
+    setDragging(true); 
+    setOffset({ x: e.clientX - position.x, y: e.clientY - position.y }); 
   };
 
-  const handleMouseMove = (e: MouseEvent) => { // NEW
-    if (!dragging) return; // NEW
-    setPosition({ x: e.clientX - offset.x, y: e.clientY - offset.y }); // NEW
+  const handleMouseMove = (e: MouseEvent) => { 
+    if (!dragging) return; 
+    setPosition({ x: e.clientX - offset.x, y: e.clientY - offset.y }); 
   };
 
-  const handleMouseUp = () => setDragging(false); // NEW
+  const handleMouseUp = () => setDragging(false); 
 
   useEffect(() => { 
-    window.addEventListener("mousemove", handleMouseMove); // NEW
-    window.addEventListener("mouseup", handleMouseUp); // NEW
+    window.addEventListener("mousemove", handleMouseMove); 
+    window.addEventListener("mouseup", handleMouseUp); 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove); // NEW
-      window.removeEventListener("mouseup", handleMouseUp); // NEW
+      window.removeEventListener("mousemove", handleMouseMove); 
+      window.removeEventListener("mouseup", handleMouseUp); 
     };
-  }, [dragging, offset]); // NEW
+  }, [dragging, offset]); 
 
   return (
     <div

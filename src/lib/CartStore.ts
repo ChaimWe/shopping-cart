@@ -1,6 +1,6 @@
 import { makeAutoObservable, reaction, runInAction } from "mobx";
 import type { AddedItems, Product } from "../types/interfaces";
-import api from "../lib/api";
+import api from "./api";
 import { UserTracker } from "../utils/UserTracker";
 
 export const CartStore = makeAutoObservable({

@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import useProducts from "../hooks/useProduct";
-import { CartStore } from "../stores/CartStore";
+import { CartStore } from "../lib/CartStore";
 import type { CartProduct } from "../types/interfaces";
 import { Table, Button, Typography, Space } from "antd";
 import { useNavigate } from "react-router-dom";

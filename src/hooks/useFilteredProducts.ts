@@ -22,6 +22,8 @@ export default function useFilteredProducts(
         product.category.toLowerCase().includes(normalizedCategory);
       return matchedCategory && matchedSearch;
     });
+
   }, [products, normalizedCategory, normalizedSearch]);
+  
   return filtered;
 }

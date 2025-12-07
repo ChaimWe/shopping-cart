@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Product, useProductsExport } from "../types/interfaces";
 import fakeProducts from "../utils/fakeProducts";
+
 export default function useProducts(): useProductsExport {
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const loadingRef = useRef<boolean>(true);
+
   useEffect(() => {
     loadingRef.current = loading;
   }, [loading]);
-  let loadingCounter=0;
+
 
   const loadProducts = async () => {
     try {
@@ -26,25 +29,24 @@ export default function useProducts(): useProductsExport {
       setLoading(false);
     }
   };
+
   const loadMore = async () => {
     if (loadingRef.current) return;
     setLoading(true);
     const result = await fakeProducts(16);
+
     setProducts((prev) => [...prev, ...result]);
     setLoading(false);
-    console.log("loaded: ",loadingCounter);
-    loadingCounter+=1;
   };
 
-  const handleScroll = useCallback( async () => {
+  const handleScroll = useCallback(async () => {
     if (loadingRef.current) return;
     const distanceFromBottom =
       document.documentElement.scrollHeight -
       (window.scrollY + window.innerHeight);
     if (distanceFromBottom <= 500) await loadMore();
-    console.log("mouse at: ",distanceFromBottom);
-    
-  },[]);
+  }, []);
+  
   useEffect(() => {
     loadProducts();
     window.addEventListener("scroll", handleScroll);

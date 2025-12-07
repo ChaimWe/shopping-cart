@@ -5,7 +5,7 @@ import {
 } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Layout, Badge, Avatar, Input, Dropdown, Tooltip, Button } from "antd";
-import { CartStore } from "../stores/CartStore";
+import { CartStore } from "../lib/CartStore";
 import { observer } from "mobx-react-lite";
 import { UserTracker } from "../utils/UserTracker";
 import api from "../lib/api";
@@ -20,6 +20,7 @@ export default observer(function Header() {
     { key: "men's clothing", label: "Men's Clothing" },
     { key: "women's clothing", label: "Women's Clothing" },
   ];
+
   const menuItems = category.map((item) => ({
     key: item.key,
     label: item.label,
@@ -72,13 +73,16 @@ export default observer(function Header() {
             <ShoppingCartOutlined style={{ fontSize: "26px" }} />
           </NavLink>
         </Badge>
-        <NavLink to="/login">
+        {UserTracker.isLoggedIn&&
+        <p style={{color: 'gray'}}>Hi {UserTracker.getUsername}</p>
+        }
+        {!UserTracker.isLoggedIn&&<NavLink  to="/login">
           <Tooltip
             title={UserTracker.isLoggedIn ? UserTracker.getUsername : "No User"}
           >
             <Avatar icon={<UserOutlined />} />
           </Tooltip>
-        </NavLink>
+        </NavLink>}
         {UserTracker.isLoggedIn?
         <Tooltip title="Logout">
         <LogoutOutlined

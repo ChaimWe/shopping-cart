@@ -15,19 +15,9 @@ export default function ProductPage() {
     searchTerm,
     categoryTerm
   );
-  if (loading)
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <h3>Loading...</h3>
-      </div>
-    );
+ 
   return (
+    <>
     <Row gutter={[10, 16]} justify="center" style={{ paddingTop: "50px" }}>
       {filteredProducts.map((product) => (
         <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
@@ -35,5 +25,15 @@ export default function ProductPage() {
         </Col>
       ))}
     </Row>
+    {loading&&  <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <h3>Loading...</h3>
+      </div>}
+    </>
   );
 }

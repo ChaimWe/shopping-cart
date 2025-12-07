@@ -4,7 +4,7 @@ import { Card, Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
 import { UserTracker } from "../utils/UserTracker";
 import { useNavigate } from "react-router-dom";
-import { CartStore } from "../stores/CartStore";
+import { CartStore } from "../lib/CartStore";
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [showFullTitle, setShowFullTitle] = useState(false);
