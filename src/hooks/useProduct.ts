@@ -1,38 +1,57 @@
-import { useEffect, useState } from 'react'
-import type {Product, useProductsExport} from '../types/interfaces'
-import fakeProducts from '../utils/fakeProducts';
-export default function useProducts():useProductsExport{
-    const [products, setProducts] =useState<Product[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Product, useProductsExport } from "../types/interfaces";
+import fakeProducts from "../utils/fakeProducts";
+export default function useProducts(): useProductsExport {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const loadingRef = useRef<boolean>(true);
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
+  let loadingCounter=0;
 
-    const loadProducts= async ()=>{
-        try{
-        const cachedProducts = localStorage.getItem('cache');
-        if(cachedProducts){
-            setProducts(JSON.parse(cachedProducts));
-            setLoading(false);
-        }else{
-            try {
-            const result = await fakeProducts(50)
-            localStorage.setItem('cache', JSON.stringify(result));
-            setProducts(result);
-
-            } catch (error) {
-             console.log('error: ',error);
-               setLoading(false) 
-            }
-            
-        }
-        setLoading(false)
-    }catch(err){
-        console.log('error: ', err);
-        setLoading(false)
-        
+  const loadProducts = async () => {
+    try {
+      const cachedProducts = localStorage.getItem("cache");
+      if (cachedProducts) {
+        setProducts(JSON.parse(cachedProducts));
+      } else {
+        const result = await fakeProducts(16);
+        localStorage.setItem("cache", JSON.stringify(result));
+        setProducts(result);
+      }
+    } catch (err) {
+      console.log("error: ", err);
+    } finally {
+      setLoading(false);
     }
-    }
+  };
+  const loadMore = async () => {
+    if (loadingRef.current) return;
+    setLoading(true);
+    const result = await fakeProducts(16);
+    setProducts((prev) => [...prev, ...result]);
+    setLoading(false);
+    console.log("loaded: ",loadingCounter);
+    loadingCounter+=1;
+  };
 
-    useEffect(()=>{
-        loadProducts();
-    },[])
-    return{products, loading}
+  const handleScroll = useCallback( async () => {
+    if (loadingRef.current) return;
+    const distanceFromBottom =
+      document.documentElement.scrollHeight -
+      (window.scrollY + window.innerHeight);
+    if (distanceFromBottom <= 500) await loadMore();
+    console.log("mouse at: ",distanceFromBottom);
+    
+  },[]);
+  useEffect(() => {
+    loadProducts();
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  return { products, loading };
 }

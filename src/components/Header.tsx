@@ -29,11 +29,14 @@ export default observer(function Header() {
   return (
     <Header
       style={{
+        position:"sticky",
+        top: '4px',
         display: "flex",
         justifyContent: "space-between",
         padding: "0 24px",
         backgroundColor: "#8b4513",
         borderRadius: "8px",
+        zIndex: 10
       }}
     >
       <div>
