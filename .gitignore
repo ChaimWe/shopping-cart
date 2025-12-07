@@ -7,6 +7,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+backend/data
+backend/users.json
 node_modules
 dist
 dist-ssr
