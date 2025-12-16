@@ -15,8 +15,8 @@ export default function Home() {
         categories, from groceries to electronics, and easily add your favorites
         to the cart. Keep track of your selected items, adjust quantities, and
         see your total in real time. Designed for simplicity and convenience,
-        ShopEase makes shopping online fast, intuitive, and enjoyable. (source:
-        ChatGpt)
+        ShopEase makes shopping online fast, intuitive, and enjoyable. <strong>(source:
+        ChatGpt)</strong>
       </Paragraph>
 
       <div style={{ display: "flex", justifyContent: "center", gap: "15px" }}>

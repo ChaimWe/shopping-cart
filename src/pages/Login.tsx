@@ -1,49 +1,13 @@
 import { Card, Typography, Form, Input, Button, Alert } from "antd";
-import { useState } from "react";
+import useSubmitAuthentication from "../hooks/useSubmitAuthentication";
 import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
-import { CartStore } from "../lib/CartStore";
-import { UserTracker } from "../utils/UserTracker";
-import useProducts from "../hooks/useProduct";
 
 const { Title, Text } = Typography;
 
 export default function Login() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [msg, setMsg] = useState<{
-    type: "success" | "error";
-    content: string;
-  } | null>(null);
+
   const navigate = useNavigate();
-  const { products } = useProducts();
-
-  const onFinish = async (values: { username: string; password: string }) => {
-    const trimmedValues = {
-      username: values.username.trim(),
-      password: values.password,
-    }
-    setLoading(true);
-    setMsg(null);
-
-    try {
-      const response = await api.post("/log-in", trimmedValues);
-      UserTracker.setUser(response.data.user);
-      CartStore.loadFromServer(products);
-      setMsg({
-        type: "success",
-        content: `Welcome ${values.username}! You have succesfully logged-in!`,
-      });
-      setTimeout(() => {
-        navigate("/store");
-        setMsg(null);
-      }, 1200);
-    } catch (err: any) {
-      const error = err.response?.data?.message || "Server error";
-      setMsg({ type: "error", content: error });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [submit, msg, loading] = useSubmitAuthentication();
 
   return (
     <div
@@ -65,12 +29,7 @@ export default function Login() {
           border: "0.2px solid black",
         }}
       >
-        <Form
-          name="Register"
-          onFinish={onFinish}
-          layout="vertical"
-          size="large"
-        >
+        <Form name="Register" onFinish={async(values)=>(submit(values,'log-in'))} layout="vertical" size="large">
           <Form.Item
             name="username"
             rules={[
@@ -90,10 +49,7 @@ export default function Login() {
               { min: 4, message: "Password must be at least 4 characters" },
             ]}
           >
-            <Input.Password
-              type="password"
-              placeholder="Password..."
-            />
+            <Input.Password type="password" placeholder="Password..." />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" disabled={loading} block>

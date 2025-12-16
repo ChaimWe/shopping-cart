@@ -1,29 +1,14 @@
 import { observer } from "mobx-react-lite";
-import useProducts from "../hooks/useProduct";
 import { CartStore } from "../lib/CartStore";
-import type { CartProduct } from "../types/interfaces";
 import { Table, Button, Typography, Space } from "antd";
 import { useNavigate } from "react-router-dom";
+import useCartProducts from "../hooks/useCartProducts";
 
 const { Title } = Typography;
 
-export default observer(function Cart() {
-  const inCart = CartStore.addedItems;
-  const { products } = useProducts();
+const Cart = () => {
   const navigate = useNavigate();
-
-  const cartProducts: CartProduct[] = inCart.map((item) => {
-    
-      const product = products.find((p) => p.id === item.id);
-      if (!product) return null;
-      return { ...product, amount: item.amount };
-
-    }).filter((item): item is CartProduct => item !== null);
-
-  const total = cartProducts.reduce(
-    (sum, product) => sum + product.amount * product.price,
-    0
-  );
+  const [cartProducts, total] = useCartProducts();
 
   return (
     <div style={{ padding: 24 }}>
@@ -95,4 +80,5 @@ export default observer(function Cart() {
       </div>
     </div>
   );
-});
+};
+export default observer(Cart);

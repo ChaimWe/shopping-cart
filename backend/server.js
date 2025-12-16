@@ -14,8 +14,11 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const CARTS_DIR = path.join(__dirname, "data", "carts");
+const USERS_FILE = path.join(__dirname, "users.json");
+
 const app = express();
-const client = new OpenAI({apiKey: process.env.OPENAI_API_KEY})
+const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 const JWT_SECRET = "my-super-duper-secret-jwt-key-in-production";
 
 // --- Middleware ---
@@ -35,11 +38,16 @@ function authenticateToken(req, res, next) {
   });
 }
 
+function getCartPath(userId) {
+  return path.join(CARTS_DIR, `${userId}.json`);
+
+}
+
 // --- Routes ---
 
 // --- User Routes ---
-app.post("/me", authenticateToken,(req,res)=>{
-  res.json({user: {id: req.user.userId, username: req.user.username}})
+app.post("/me", authenticateToken, (req, res) => {
+  res.json({ user: { id: req.user.userId, username: req.user.username } })
 })
 
 app.post("/register", async (req, res) => {
@@ -48,9 +56,8 @@ app.post("/register", async (req, res) => {
     if (!username || !password)
       return res.status(400).json({ message: "Username and password required" });
 
-    const filePath = path.join(__dirname, "users.json");
-    let users = fs.existsSync(filePath)
-      ? JSON.parse(await fs.promises.readFile(filePath, "utf-8"))
+    let users = fs.existsSync(USERS_FILE)
+      ? JSON.parse(await fs.promises.readFile(USERS_FILE, "utf-8"))
       : [];
 
     if (users.find(u => u.username === username))
@@ -59,7 +66,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = { id: users.length ? users[users.length - 1].id + 1 : 1, username, password: hashedPassword };
     users.push(newUser);
-    await fs.promises.writeFile(filePath, JSON.stringify(users, null, 2));
+    await fs.promises.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
 
     const token = jwt.sign({ userId: newUser.id, username: newUser.username }, JWT_SECRET, { expiresIn: "7h" });
     res
@@ -78,20 +85,25 @@ app.post("/log-in", async (req, res) => {
     if (!username || !password)
       return res.status(400).json({ message: "Username and password required" });
 
-    const filePath = path.join(__dirname, "users.json");
-    const users = fs.existsSync(filePath) ? JSON.parse(await fs.promises.readFile(filePath, "utf-8")) : [];
+    const users = fs.existsSync(USERS_FILE)
+      ? JSON.parse(await fs.promises.readFile(USERS_FILE, "utf-8")) : [];
+
     const user = users.find(u => u.username === username);
+
     if (!user) return res.status(400).json({ message: "Username or password incorrect" });
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) return res.status(400).json({ message: "Username or password incorrect" });
 
-    const token = jwt.sign({ userId: user.id, username: user.username }, JWT_SECRET, { expiresIn: "7h" });
+    const token = jwt.sign({ userId: user.id, username: user.username }
+      , JWT_SECRET, { expiresIn: "7h" });
     res
       .cookie("token", token, { httpOnly: true, sameSite: "strict", maxAge: 7 * 60 * 60 * 1000 })
       .status(200)
       .json({ message: `${username} logged in successfully!`, user: { id: user.id, username } });
-  } catch (err) {
+  }
+  catch (err) {
     console.error("Login error: ", err);
     res.status(500).json({ message: "Server error" });
   }
@@ -101,25 +113,24 @@ app.post("/logout", (req, res) => {
   res.clearCookie("token").json({ message: "Logged out" });
 });
 
-app.post("/ai", async (req, res)=> {
-  try{
-    const {message} = req.body;
+app.post("/ai", async (req, res) => {
+  try {
+    const { message } = req.body;
     const completion = await client.chat.completions.create({
-      model:"gpt-4o-mini",
-      messages:[{role: "user", content: message}]
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: message }]
     });
-    res.json({reply: completion.choices[0].message.content});
-  }catch(err){
-    console.log("AI error ",err);
-    res.status(500).json({message: "AI error"})
+    res.json({ reply: completion.choices[0].message.content });
+  } catch (err) {
+    console.log("AI error ", err);
+    res.status(500).json({ message: "AI error" })
   }
 })
 
 // --- Cart Routes ---
 app.get("/api/cart", authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId;
-    const cartPath = path.join(__dirname, "data", "carts", `${userId}.json`);
+    const cartPath = getCartPath(req.user.userId);
     if (!fs.existsSync(cartPath)) return res.json({ items: [] });
 
     const data = await fs.promises.readFile(cartPath, "utf-8");
@@ -133,11 +144,10 @@ app.get("/api/cart", authenticateToken, async (req, res) => {
 
 app.post("/api/cart/sync", authenticateToken, async (req, res) => {
   try {
-    const userId = req.user.userId;
+    const cartPath = getCartPath(req.user.userId);
     const { items } = req.body;
     if (!Array.isArray(items)) return res.status(400).json({ message: "Invalid cart data" });
 
-    const cartPath = path.join(__dirname, "data", "carts", `${userId}.json`);
     await fs.promises.writeFile(cartPath, JSON.stringify({ items }, null, 2));
     res.json({ message: "Cart synced", items });
   } catch (err) {

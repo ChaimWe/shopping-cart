@@ -1,49 +1,11 @@
 import { Card, Typography, Form, Input, Button, Alert } from "antd";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../lib/api";
-import { CartStore } from "../lib/CartStore";
-import { UserTracker } from "../utils/UserTracker";
-import useProducts from "../hooks/useProduct";
+import useSubmitAuthentication from "../hooks/useSubmitAuthentication";
 
 const { Title, Text } = Typography;
 
-export default function Register() {
-  const [loading, setLoading] = useState<boolean>(false);
-  const [msg, setMsg] = useState<{
-    type: "success" | "error";
-    content: string;
-  } | null>(null);
-  const navigate = useNavigate();
-  const { products } = useProducts();
+export default  function Register() {
+const  [ submit,msg, loading]=  useSubmitAuthentication();
 
-  const onFinish = async (values: { username: string; password: string }) => {
-    const trimmedValues = {
-      username: values.username.trim(),
-      password: values.password,
-    }
-    setLoading(true);
-    setMsg(null);
-
-    try {
-      const response = await api.post("/register", trimmedValues);
-      UserTracker.setUser(response.data.user);
-      CartStore.loadFromServer(products);
-      setMsg({
-        type: "success",
-        content: `Welcome ${values.username}! You have succesfully registered!`,
-      });
-      setTimeout(() => {
-        navigate("/store");
-        setMsg(null);
-      }, 1200);
-    } catch (err: any) {
-      const error = err.response?.data?.message || "Server error";
-      setMsg({ type: "error", content: error });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div
@@ -67,7 +29,7 @@ export default function Register() {
       >
         <Form
           name="Register"
-          onFinish={onFinish}
+          onFinish={async(values)=>{submit(values, 'register')}}
           layout="vertical"
           size="large"
         >
