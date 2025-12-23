@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import type { ProductCardProps } from "../types/interfaces";
 import { Card, Button } from "antd";
 import { ShoppingCartOutlined } from "@ant-design/icons";
@@ -6,7 +6,7 @@ import { UserTracker } from "../utils/UserTracker";
 import { useNavigate } from "react-router-dom";
 import { CartStore } from "../lib/CartStore";
 
-export default function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product }: ProductCardProps) {
   const [showFullTitle, setShowFullTitle] = useState(false);
   const [showFulldescription, setShowFulldescription] = useState(false);
   const [added, setAdded] = useState(false);
@@ -38,6 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         <img
           alt={product.title}
           src={product.image}
+          loading="lazy"
           style={{ height: 200, objectFit: "contain" }}
         />
       }
@@ -117,3 +118,4 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Card>
   );
 }
+export default React.memo(ProductCard);
